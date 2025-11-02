@@ -1,0 +1,87 @@
+spring:
+  application:
+    name: immunization-validator
+  
+  # Server configuration
+server:
+  port: 8080
+
+# Immunization requirements configuration
+# This can be loaded from external files or database in production
+immunization:
+  requirements:
+    states:
+      # Example: California requirements
+      CA:
+        age:
+          - age: 5
+            vaccineCode: "DTaP"
+            minDoses: 5
+            description: "Diphtheria, Tetanus, and Pertussis - 5 doses required by age 5"
+          - age: 5
+            vaccineCode: "Polio"
+            minDoses: 4
+            description: "Polio - 4 doses required by age 5"
+          - age: 5
+            vaccineCode: "MMR"
+            minDoses: 2
+            description: "Measles, Mumps, and Rubella - 2 doses required by age 5"
+          - age: 5
+            vaccineCode: "HepB"
+            minDoses: 3
+            description: "Hepatitis B - 3 doses required by age 5"
+          - age: 7
+            vaccineCode: "DTaP"
+            minDoses: 5
+            description: "Diphtheria, Tetanus, and Pertussis - 5 doses required by age 7"
+          - age: 7
+            vaccineCode: "Tdap"
+            minDoses: 1
+            description: "Tetanus, Diphtheria, and Pertussis booster - 1 dose required by age 7"
+      
+      # Example: New York requirements
+      NY:
+        age:
+          - age: 5
+            vaccineCode: "DTaP"
+            minDoses: 4
+            description: "Diphtheria, Tetanus, and Pertussis - 4 doses required by age 5"
+          - age: 5
+            vaccineCode: "MMR"
+            minDoses: 1
+            description: "Measles, Mumps, and Rubella - 1 dose required by age 5"
+          - age: 6
+            vaccineCode: "MMR"
+            minDoses: 2
+            description: "Measles, Mumps, and Rubella - 2 doses required by age 6"
+      
+      # Example: Texas requirements
+      TX:
+        schoolYear:
+          - schoolYear: "Kindergarten"
+            vaccineCode: "DTaP"
+            minDoses: 5
+            description: "Diphtheria, Tetanus, and Pertussis - 5 doses required for Kindergarten"
+          - schoolYear: "Kindergarten"
+            vaccineCode: "Polio"
+            minDoses: 4
+            description: "Polio - 4 doses required for Kindergarten"
+          - schoolYear: "7th Grade"
+            vaccineCode: "Tdap"
+            minDoses: 1
+            description: "Tetanus, Diphtheria, and Pertussis booster - 1 dose required for 7th Grade"
+          - schoolYear: "7th Grade"
+            vaccineCode: "MCV4"
+            minDoses: 1
+            description: "Meningococcal Conjugate - 1 dose required for 7th Grade"
+
+# Logging configuration - Privacy focused
+logging:
+  level:
+    root: INFO
+    com.immunization.validator: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+  # Ensure no PII is logged
+  include-application-name: false
+

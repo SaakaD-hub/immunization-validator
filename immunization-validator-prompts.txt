@@ -1,0 +1,23 @@
+I would like to build an "immunation validator" service that runs an API to validate immunization records. The 
+validation requirements should be configurable. Because each state has different requirements, the service should 
+be able to encode those requirements as configuration so that they can be updated as needed. Further, the 
+requirements vary by age of the patient, usually corresponding to the year of school the patient is entering.
+
+The service should be able to take a single patient's immunization record and validate it against a specified
+state's requirements for a given age. It should also be able to take a collection of patient records and validate
+them all at once against the same requirements. Each patient record will be based on the FHIR standard, but will 
+contain only the information necessary to validate the patient's immunization record, plus an identifier for the
+patient.
+
+The service should have two response modes. The first mode should respond with a JSON object that contains the 
+patient's identifier and a boolean value indicating whether the patient's immunization record is valid. The second
+mode should respond with a JSON object that contains the patient's identifier, the "valid" boolean from the first mode, 
+and, if applicable, a list of requirements that are not met. In the case of multiple patients, the mode is specified 
+for the whole batch of patients. The response JSON should also be based on the FHIR standard.
+
+Significantly, the service should not require any authentication or authorization to use, nor should it require any
+personally identifiable information to be submitted. Logging should only show timestamps, requests source, a partially
+masked patient identifier, response modes, and any error messages, to ensure patient privacy is protected.
+
+The service should be built using Java Spring Boot. The code should be well-documented and follow best practices for
+Java development. I would like to be able to run the service in a container.
