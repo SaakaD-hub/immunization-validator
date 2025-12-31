@@ -10,6 +10,8 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.intThat;
 
 /**
  * Unit tests for ValidationService.
@@ -36,7 +38,8 @@ class ValidationServiceTest {
                         .build()
         );
         
-        when(requirementsService.getRequirements("CA", 5)).thenReturn(requirements);
+        // Mock to return requirements for any age >= 5 (since we're testing nearest lower age logic)
+        when(requirementsService.getRequirements(eq("CA"), intThat(age -> age >= 5))).thenReturn(requirements);
         
         Patient patient = Patient.builder()
                 .id("test-patient-1")
@@ -75,7 +78,8 @@ class ValidationServiceTest {
                         .build()
         );
         
-        when(requirementsService.getRequirements("CA", 5)).thenReturn(requirements);
+        // Mock to return requirements for any age >= 5
+        when(requirementsService.getRequirements(eq("CA"), intThat(age -> age >= 5))).thenReturn(requirements);
         
         Patient patient = Patient.builder()
                 .id("test-patient-2")
@@ -113,7 +117,8 @@ class ValidationServiceTest {
                         .build()
         );
         
-        when(requirementsService.getRequirements("CA", 5)).thenReturn(requirements);
+        // Mock to return requirements for any age >= 5
+        when(requirementsService.getRequirements(eq("CA"), intThat(age -> age >= 5))).thenReturn(requirements);
         
         Patient patient = Patient.builder()
                 .id("test-patient-3")

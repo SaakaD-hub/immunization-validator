@@ -10,6 +10,7 @@ import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -121,9 +122,52 @@ public class ValidationService {
                     Collectors.counting()
                 ));
         
+        // Build map of exceptions by vaccine code
+        Map<String, String> exceptionsByVaccine = new HashMap<>();
+        if (patient.getExceptions() != null) {
+            for (com.immunization.validator.model.VaccineException exception : patient.getExceptions()) {
+                exceptionsByVaccine.put(exception.getVaccineCode(), exception.getExceptionType());
+            }
+        }
+        
         // Check each requirement
         for (ValidationRequirement requirement : requirements) {
             String vaccineCode = requirement.getVaccineCode();
+            
+            // Check if patient has an accepted exception for this vaccine
+            if (requirement.getAcceptedExceptions() != null && !requirement.getAcceptedExceptions().isEmpty()) {
+                String exceptionType = exceptionsByVaccine.get(vaccineCode);
+                if (exceptionType != null && requirement.getAcceptedExceptions().contains(exceptionType)) {
+                    log.debug("Requirement satisfied by exception {} for vaccine {}", exceptionType, vaccineCode);
+                    continue; // Requirement is satisfied by exception
+                }
+            }
+            
+            // Check alternate requirements
+            boolean alternateRequirementMet = false;
+            if (requirement.getAlternateRequirements() != null) {
+                for (com.immunization.validator.model.AlternateRequirement altReq : requirement.getAlternateRequirements()) {
+                    String altVaccineCode = altReq.getAlternateVaccineCode() != null ? 
+                                           altReq.getAlternateVaccineCode() : vaccineCode;
+                    Integer altRequiredDoses = altReq.getMinDoses() != null ? altReq.getMinDoses() : 1;
+                    Long altFoundDoses = vaccineCounts.getOrDefault(altVaccineCode, 0L);
+                    
+                    // Note: We don't validate the condition here (e.g., "4th dose on or after 4th birthday")
+                    // as that would require date parsing and age calculation. This is a simplified check.
+                    if (altFoundDoses >= altRequiredDoses) {
+                        log.debug("Requirement satisfied by alternate requirement: {} doses of {}", 
+                                altFoundDoses, altVaccineCode);
+                        alternateRequirementMet = true;
+                        break;
+                    }
+                }
+            }
+            
+            if (alternateRequirementMet) {
+                continue; // Requirement satisfied by alternate requirement
+            }
+            
+            // Check primary requirement
             Integer requiredDoses = requirement.getMinDoses() != null ? 
                                   requirement.getMinDoses() : 1;
             

@@ -29,14 +29,30 @@ public class Patient {
     /**
      * Patient's date of birth (used to determine age for requirement validation)
      * Format: YYYY-MM-DD
+     * Optional if schoolYear is provided
      */
     @JsonProperty("birthDate")
     private String birthDate;
+    
+    /**
+     * School year/grade identifier (alternative to birthDate for requirement validation)
+     * Examples: "Kindergarten", "7th Grade", "12th Grade"
+     * Optional if birthDate is provided
+     */
+    @JsonProperty("schoolYear")
+    private String schoolYear;
     
     /**
      * List of immunizations received by the patient
      */
     @JsonProperty("immunization")
     private List<Immunization> immunizations;
+    
+    /**
+     * List of vaccine exceptions/exemptions for this patient.
+     * Each exception specifies a vaccine code and the exception type.
+     * Example exception types: MEDICAL_CONTRAINDICATION, LABORATORY_EVIDENCE, RELIABLE_HISTORY, RELIGIOUS_EXEMPTION
+     */
+    @JsonProperty("exceptions")
+    private List<VaccineException> exceptions;
 }
-
