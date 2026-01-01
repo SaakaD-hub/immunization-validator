@@ -1,216 +1,271 @@
-spring:
-  application:
-    name: immunization-validator
-  
-  # Server configuration
-server:
-  port: 8080
+#spring:
+#  application:
+#    name: immunization-validator
+#
+#  # Server configuration
+#server:
+#  port: 8080
+#
+## Immunization requirements configuration
+## This can be loaded from external files or database in production
+#immunization:
+#  requirements:
+#    states:
+#      # Example: California requirements
+#      CA:
+#        age:
+#          - age: 5
+#            vaccineCode: "DTaP"
+#            minDoses: 5
+#            description: "Diphtheria, Tetanus, and Pertussis - 5 doses required by age 5"
+#          - age: 5
+#            vaccineCode: "Polio"
+#            minDoses: 4
+#            description: "Polio - 4 doses required by age 5"
+#          - age: 5
+#            vaccineCode: "MMR"
+#            minDoses: 2
+#            description: "Measles, Mumps, and Rubella - 2 doses required by age 5"
+#          - age: 5
+#            vaccineCode: "HepB"
+#            minDoses: 3
+#            description: "Hepatitis B - 3 doses required by age 5"
+#          - age: 7
+#            vaccineCode: "DTaP"
+#            minDoses: 5
+#            description: "Diphtheria, Tetanus, and Pertussis - 5 doses required by age 7"
+#          - age: 7
+#            vaccineCode: "Tdap"
+#            minDoses: 1
+#            description: "Tetanus, Diphtheria, and Pertussis booster - 1 dose required by age 7"
+#
+#      # Example: New York requirements
+#      NY:
+#        age:
+#          - age: 5
+#            vaccineCode: "DTaP"
+#            minDoses: 4
+#            description: "Diphtheria, Tetanus, and Pertussis - 4 doses required by age 5"
+#          - age: 5
+#            vaccineCode: "MMR"
+#            minDoses: 1
+#            description: "Measles, Mumps, and Rubella - 1 dose required by age 5"
+#          - age: 6
+#            vaccineCode: "MMR"
+#            minDoses: 2
+#            description: "Measles, Mumps, and Rubella - 2 doses required by age 6"
+#
+#      # Example: Texas requirements
+#      TX:
+#        schoolYear:
+#          - schoolYear: "Kindergarten"
+#            vaccineCode: "DTaP"
+#            minDoses: 5
+#            description: "Diphtheria, Tetanus, and Pertussis - 5 doses required for Kindergarten"
+#          - schoolYear: "Kindergarten"
+#            vaccineCode: "Polio"
+#            minDoses: 4
+#            description: "Polio - 4 doses required for Kindergarten"
+#          - schoolYear: "7th Grade"
+#            vaccineCode: "Tdap"
+#            minDoses: 1
+#            description: "Tetanus, Diphtheria, and Pertussis booster - 1 dose required for 7th Grade"
+#          - schoolYear: "7th Grade"
+#            vaccineCode: "MCV4"
+#            minDoses: 1
+#            description: "Meningococcal Conjugate - 1 dose required for 7th Grade"
+#
+#      # Massachusetts requirements
+#      # Official source: https://www.mass.gov/info-details/school-immunizations
+#      # PDF: https://www.mass.gov/doc/immunization-requirements-for-school-entry-1/download
+#      MA:
+#        age:
+#          # Preschool requirements (ages 2-4)
+#          - age: 2
+#            vaccineCode: "DTaP"
+#            minDoses: 4
+#            description: "Diphtheria, Tetanus, and Pertussis - 4 doses required for preschool entry"
+#            alternateRequirements:
+#              - minDoses: 3
+#                condition: "3 doses acceptable if 3rd dose given on or after 4th birthday"
+#                description: "3 doses of DTaP if 3rd dose given on or after 4th birthday"
+#            acceptedExceptions:
+#              - "MEDICAL_CONTRAINDICATION"
+#          - age: 2
+#            vaccineCode: "Polio"
+#            minDoses: 3
+#            description: "Polio - 3 doses required for preschool entry"
+#            alternateRequirements:
+#              - minDoses: 3
+#                condition: "3 doses acceptable if 3rd dose given on or after 4th birthday and ≥6 months after previous dose"
+#                description: "3 doses of Polio if 3rd dose given on or after 4th birthday"
+#            acceptedExceptions:
+#              - "MEDICAL_CONTRAINDICATION"
+#          - age: 2
+#            vaccineCode: "Hib"
+#            minDoses: 1
+#            description: "Haemophilus influenzae type b - 1-4 doses required for preschool (varies by vaccine type and age)"
+#            acceptedExceptions:
+#              - "MEDICAL_CONTRAINDICATION"
+#          - age: 2
+#            vaccineCode: "PCV13"
+#            minDoses: 1
+#            description: "Pneumococcal Conjugate - 1-4 doses required for preschool (varies by age at first dose)"
+#            acceptedExceptions:
+#              - "MEDICAL_CONTRAINDICATION"
+#          - age: 2
+#            vaccineCode: "HepB"
+#            minDoses: 3
+#            description: "Hepatitis B - 3 doses required for preschool entry"
+#            acceptedExceptions:
+#              - "MEDICAL_CONTRAINDICATION"
+#              - "LABORATORY_EVIDENCE"
+#          - age: 2
+#            vaccineCode: "MMR"
+#            minDoses: 1
+#            description: "Measles, Mumps, and Rubella - 1 dose required for preschool entry (first dose on or after 1st birthday)"
+#            acceptedExceptions:
+#              - "MEDICAL_CONTRAINDICATION"
+#              - "LABORATORY_EVIDENCE"
+#          - age: 2
+#            vaccineCode: "Varicella"
+#            minDoses: 1
+#            description: "Varicella (Chickenpox) - 1 dose required for preschool entry (on or after 1st birthday)"
+#            acceptedExceptions:
+#              - "MEDICAL_CONTRAINDICATION"
+#              - "LABORATORY_EVIDENCE"
+#              - "RELIABLE_HISTORY"
+#
+#          # Kindergarten entry requirements (age 5)
+#          - age: 5
+#            vaccineCode: "DTaP"
+#            minDoses: 5
+#            description: "Diphtheria, Tetanus, and Pertussis - 5 doses required by age 5 (kindergarten entry)"
+#            alternateRequirements:
+#              - minDoses: 4
+#                condition: "4 doses acceptable if 4th dose given on or after 4th birthday"
+#                description: "4 doses of DTaP if 4th dose given on or after 4th birthday"
+#              - alternateVaccineCode: "DT"
+#                minDoses: 5
+#                condition: "DT acceptable with letter stating medical contraindication to DTaP"
+#                description: "5 doses of DT with medical contraindication letter for DTaP"
+#            acceptedExceptions:
+#              - "MEDICAL_CONTRAINDICATION"
+#          - age: 5
+#            vaccineCode: "Polio"
+#            minDoses: 4
+#            description: "Polio - 4 doses required by age 5 (kindergarten entry)"
+#            alternateRequirements:
+#              - minDoses: 3
+#                condition: "3 doses acceptable if 3rd dose given on or after 4th birthday and ≥6 months after previous dose"
+#                description: "3 doses of Polio if 3rd dose given on or after 4th birthday"
+#            acceptedExceptions:
+#              - "MEDICAL_CONTRAINDICATION"
+#          - age: 5
+#            vaccineCode: "MMR"
+#            minDoses: 2
+#            description: "Measles, Mumps, and Rubella - 2 doses required by age 5 (kindergarten entry). First dose on or after 1st birthday, second dose ≥28 days after first"
+#            acceptedExceptions:
+#              - "MEDICAL_CONTRAINDICATION"
+#              - "LABORATORY_EVIDENCE"
+#          - age: 5
+#            vaccineCode: "HepB"
+#            minDoses: 3
+#            description: "Hepatitis B - 3 doses required by age 5 (kindergarten entry)"
+#            acceptedExceptions:
+#              - "MEDICAL_CONTRAINDICATION"
+#              - "LABORATORY_EVIDENCE"
+#          - age: 5
+#            vaccineCode: "Varicella"
+#            minDoses: 2
+#            description: "Varicella (Chickenpox) - 2 doses required by age 5 (kindergarten entry). First dose on or after 1st birthday, second dose ≥28 days after first"
+#            acceptedExceptions:
+#              - "MEDICAL_CONTRAINDICATION"
+#              - "LABORATORY_EVIDENCE"
+#              - "RELIABLE_HISTORY"
+#
+#        schoolYear:
+#          - schoolYear: "7th Grade"
+#            vaccineCode: "Tdap"
+#            minDoses: 1
+#            description: "Tetanus, Diphtheria, and Pertussis booster - 1 dose required for 7th Grade"
+#            acceptedExceptions:
+#              - "MEDICAL_CONTRAINDICATION"
+#          - schoolYear: "7th Grade"
+#            vaccineCode: "MCV4"
+#            minDoses: 1
+#            description: "Meningococcal Conjugate (MenACWY) - 1 dose required for 7th Grade"
+#            acceptedExceptions:
+#              - "MEDICAL_CONTRAINDICATION"
+#          - schoolYear: "11th Grade"
+#            vaccineCode: "MCV4"
+#            minDoses: 1
+#            description: "Meningococcal Conjugate (MenACWY) booster - 1 dose required for 11th Grade (on or after 16th birthday)"
+#            acceptedExceptions:
+#              - "MEDICAL_CONTRAINDICATION"
+#
+## Logging configuration - Privacy focused
+#logging:
+#  level:
+#    root: INFO
+#    com.immunization.validator: INFO
+#  pattern:
+#    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+#  # Ensure no PII is logged
+#  include-application-name: false
+#
 
-# Immunization requirements configuration
-# This can be loaded from external files or database in production
 immunization:
   requirements:
     states:
-      # Example: California requirements
+      # California requirements
       CA:
         age:
+          # ✅ CHANGED: Added acceptedExceptions and updated alternateRequirements
           - age: 5
             vaccineCode: "DTaP"
             minDoses: 5
-            description: "Diphtheria, Tetanus, and Pertussis - 5 doses required by age 5"
-          - age: 5
-            vaccineCode: "Polio"
-            minDoses: 4
-            description: "Polio - 4 doses required by age 5"
-          - age: 5
-            vaccineCode: "MMR"
-            minDoses: 2
-            description: "Measles, Mumps, and Rubella - 2 doses required by age 5"
-          - age: 5
-            vaccineCode: "HepB"
-            minDoses: 3
-            description: "Hepatitis B - 3 doses required by age 5"
-          - age: 7
-            vaccineCode: "DTaP"
-            minDoses: 5
-            description: "Diphtheria, Tetanus, and Pertussis - 5 doses required by age 7"
-          - age: 7
-            vaccineCode: "Tdap"
-            minDoses: 1
-            description: "Tetanus, Diphtheria, and Pertussis booster - 1 dose required by age 7"
-      
-      # Example: New York requirements
-      NY:
-        age:
-          - age: 5
-            vaccineCode: "DTaP"
-            minDoses: 4
-            description: "Diphtheria, Tetanus, and Pertussis - 4 doses required by age 5"
-          - age: 5
-            vaccineCode: "MMR"
-            minDoses: 1
-            description: "Measles, Mumps, and Rubella - 1 dose required by age 5"
-          - age: 6
-            vaccineCode: "MMR"
-            minDoses: 2
-            description: "Measles, Mumps, and Rubella - 2 doses required by age 6"
-      
-      # Example: Texas requirements
-      TX:
-        schoolYear:
-          - schoolYear: "Kindergarten"
-            vaccineCode: "DTaP"
-            minDoses: 5
-            description: "Diphtheria, Tetanus, and Pertussis - 5 doses required for Kindergarten"
-          - schoolYear: "Kindergarten"
-            vaccineCode: "Polio"
-            minDoses: 4
-            description: "Polio - 4 doses required for Kindergarten"
-          - schoolYear: "7th Grade"
-            vaccineCode: "Tdap"
-            minDoses: 1
-            description: "Tetanus, Diphtheria, and Pertussis booster - 1 dose required for 7th Grade"
-          - schoolYear: "7th Grade"
-            vaccineCode: "MCV4"
-            minDoses: 1
-            description: "Meningococcal Conjugate - 1 dose required for 7th Grade"
-      
-      # Massachusetts requirements
-      # Official source: https://www.mass.gov/info-details/school-immunizations
-      # PDF: https://www.mass.gov/doc/immunization-requirements-for-school-entry-1/download
-      MA:
-        age:
-          # Preschool requirements (ages 2-4)
-          - age: 2
-            vaccineCode: "DTaP"
-            minDoses: 4
-            description: "Diphtheria, Tetanus, and Pertussis - 4 doses required for preschool entry"
-            alternateRequirements:
-              - minDoses: 3
-                condition: "3 doses acceptable if 3rd dose given on or after 4th birthday"
-                description: "3 doses of DTaP if 3rd dose given on or after 4th birthday"
-            acceptedExceptions:
-              - "MEDICAL_CONTRAINDICATION"
-          - age: 2
-            vaccineCode: "Polio"
-            minDoses: 3
-            description: "Polio - 3 doses required for preschool entry"
-            alternateRequirements:
-              - minDoses: 3
-                condition: "3 doses acceptable if 3rd dose given on or after 4th birthday and ≥6 months after previous dose"
-                description: "3 doses of Polio if 3rd dose given on or after 4th birthday"
-            acceptedExceptions:
-              - "MEDICAL_CONTRAINDICATION"
-          - age: 2
-            vaccineCode: "Hib"
-            minDoses: 1
-            description: "Haemophilus influenzae type b - 1-4 doses required for preschool (varies by vaccine type and age)"
-            acceptedExceptions:
-              - "MEDICAL_CONTRAINDICATION"
-          - age: 2
-            vaccineCode: "PCV13"
-            minDoses: 1
-            description: "Pneumococcal Conjugate - 1-4 doses required for preschool (varies by age at first dose)"
-            acceptedExceptions:
-              - "MEDICAL_CONTRAINDICATION"
-          - age: 2
-            vaccineCode: "HepB"
-            minDoses: 3
-            description: "Hepatitis B - 3 doses required for preschool entry"
-            acceptedExceptions:
+            description: "DTaP - Diphtheria, Tetanus, Pertussis (5 doses required)"
+            acceptedExceptions:  # ✅ NEW: Added medical exemption support
               - "MEDICAL_CONTRAINDICATION"
               - "LABORATORY_EVIDENCE"
-          - age: 2
-            vaccineCode: "MMR"
-            minDoses: 1
-            description: "Measles, Mumps, and Rubella - 1 dose required for preschool entry (first dose on or after 1st birthday)"
-            acceptedExceptions:
-              - "MEDICAL_CONTRAINDICATION"
-              - "LABORATORY_EVIDENCE"
-          - age: 2
-            vaccineCode: "Varicella"
-            minDoses: 1
-            description: "Varicella (Chickenpox) - 1 dose required for preschool entry (on or after 1st birthday)"
-            acceptedExceptions:
-              - "MEDICAL_CONTRAINDICATION"
-              - "LABORATORY_EVIDENCE"
-              - "RELIABLE_HISTORY"
-          
-          # Kindergarten entry requirements (age 5)
-          - age: 5
-            vaccineCode: "DTaP"
-            minDoses: 5
-            description: "Diphtheria, Tetanus, and Pertussis - 5 doses required by age 5 (kindergarten entry)"
             alternateRequirements:
               - minDoses: 4
-                condition: "4 doses acceptable if 4th dose given on or after 4th birthday"
-                description: "4 doses of DTaP if 4th dose given on or after 4th birthday"
-              - alternateVaccineCode: "DT"
-                minDoses: 5
-                condition: "DT acceptable with letter stating medical contraindication to DTaP"
-                description: "5 doses of DT with medical contraindication letter for DTaP"
-            acceptedExceptions:
-              - "MEDICAL_CONTRAINDICATION"
-          - age: 5
-            vaccineCode: "Polio"
-            minDoses: 4
-            description: "Polio - 4 doses required by age 5 (kindergarten entry)"
-            alternateRequirements:
-              - minDoses: 3
-                condition: "3 doses acceptable if 3rd dose given on or after 4th birthday and ≥6 months after previous dose"
-                description: "3 doses of Polio if 3rd dose given on or after 4th birthday"
-            acceptedExceptions:
-              - "MEDICAL_CONTRAINDICATION"
+                condition: "4th dose on or after 4th birthday"  # ✅ NEW: This will now be evaluated!
+                description: "4 doses acceptable if 4th dose given on or after 4th birthday"
+
           - age: 5
             vaccineCode: "MMR"
             minDoses: 2
-            description: "Measles, Mumps, and Rubella - 2 doses required by age 5 (kindergarten entry). First dose on or after 1st birthday, second dose ≥28 days after first"
-            acceptedExceptions:
+            description: "MMR - Measles, Mumps, Rubella (2 doses required)"
+            acceptedExceptions:  # ✅ NEW: Added medical exemption support
               - "MEDICAL_CONTRAINDICATION"
               - "LABORATORY_EVIDENCE"
+
+          - age: 5
+            vaccineCode: "Polio"
+            minDoses: 4
+            description: "Polio - Inactivated Poliovirus (4 doses required)"
+            acceptedExceptions:  # ✅ NEW: Added medical exemption support
+              - "MEDICAL_CONTRAINDICATION"
+              - "LABORATORY_EVIDENCE"
+
           - age: 5
             vaccineCode: "HepB"
             minDoses: 3
-            description: "Hepatitis B - 3 doses required by age 5 (kindergarten entry)"
-            acceptedExceptions:
+            description: "Hepatitis B (3 doses required)"
+            acceptedExceptions:  # ✅ NEW: Added medical exemption support
               - "MEDICAL_CONTRAINDICATION"
               - "LABORATORY_EVIDENCE"
-          - age: 5
-            vaccineCode: "Varicella"
-            minDoses: 2
-            description: "Varicella (Chickenpox) - 2 doses required by age 5 (kindergarten entry). First dose on or after 1st birthday, second dose ≥28 days after first"
-            acceptedExceptions:
-              - "MEDICAL_CONTRAINDICATION"
-              - "LABORATORY_EVIDENCE"
-              - "RELIABLE_HISTORY"
-        
-        schoolYear:
-          - schoolYear: "7th Grade"
-            vaccineCode: "Tdap"
-            minDoses: 1
-            description: "Tetanus, Diphtheria, and Pertussis booster - 1 dose required for 7th Grade"
-            acceptedExceptions:
-              - "MEDICAL_CONTRAINDICATION"
-          - schoolYear: "7th Grade"
-            vaccineCode: "MCV4"
-            minDoses: 1
-            description: "Meningococcal Conjugate (MenACWY) - 1 dose required for 7th Grade"
-            acceptedExceptions:
-              - "MEDICAL_CONTRAINDICATION"
-          - schoolYear: "11th Grade"
-            vaccineCode: "MCV4"
-            minDoses: 1
-            description: "Meningococcal Conjugate (MenACWY) booster - 1 dose required for 11th Grade (on or after 16th birthday)"
-            acceptedExceptions:
-              - "MEDICAL_CONTRAINDICATION"
 
-# Logging configuration - Privacy focused
+# Other Spring Boot configuration (leave as-is)
+server:
+  port: 8080
+
+spring:
+  application:
+    name: immunization-validator
+
 logging:
   level:
-    root: INFO
-    com.immunization.validator: INFO
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
-  # Ensure no PII is logged
-  include-application-name: false
-
+    com.immunization.validator: DEBUG
