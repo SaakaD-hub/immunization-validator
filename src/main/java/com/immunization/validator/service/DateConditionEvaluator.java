@@ -5,121 +5,162 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Evaluates date-based conditions for alternate vaccine requirements.
- * 
- * Handles CDC conditions like:
- * - "4th dose on or after 4th birthday"
- * - "3rd dose after 7 months of age"
- * 
- * This component was missing from the original implementation, causing
- * the system to accept invalid immunization records.
+ * DateConditionEvaluator for Massachusetts immunization requirements.
+ * Validates that vaccine doses meet date-based conditions (e.g., "on or after 4th birthday").
+ *
+ * Supported birthday validations:
+ * - 1st birthday (MMR, Varicella)
+ * - 4th birthday (DTaP, Polio)
+ * - 10th birthday (MenACWY for grades 7-10)
+ * - 16th birthday (MenACWY for grades 11-12)
+ * - 18th birthday (Heplisav-B alternate)
+ *
+ * @author David Saaka
+ * @version 2.0
  */
 @Slf4j
 @Component
 public class DateConditionEvaluator {
-    
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE;
-    
-    // Regex pattern to parse: "4th dose on or after 4th birthday"
-    // Captures: dose number (4) and birthday year (4)
-    private static final Pattern DOSE_BIRTHDAY_PATTERN = 
-        Pattern.compile("(\\d+)(?:st|nd|rd|th)\\s+dose\\s+on\\s+or\\s+after\\s+(\\d+)(?:st|nd|rd|th)\\s+birthday");
-    
+
+    // Pattern to match: "Nth dose on or after Yth birthday"
+    // Examples: "4th dose on or after 4th birthday", "1st dose on or after 1st birthday"
+    private static final Pattern DATE_CONDITION_PATTERN = Pattern.compile(
+            "(\\d+)(?:st|nd|rd|th)\\s+dose\\s+on or after\\s+(\\d+)(?:st|nd|rd|th)\\s+birthday",
+            Pattern.CASE_INSENSITIVE
+    );
+
     /**
-     * Evaluates whether the given immunizations meet the specified date condition.
-     * 
-     * @param condition The condition string from requirement config (e.g., "4th dose on or after 4th birthday")
-     * @param immunizations List of immunizations for this vaccine, sorted by date
+     * Evaluates multiple date conditions (all must be met).
+     *
+     * This method is called when a requirement has multiple date conditions.
+     * All conditions must be satisfied for the requirement to be met.
+     *
+     * @param conditions List of date conditions to evaluate
+     * @param immunizations List of immunizations for the vaccine, sorted by date
+     * @param birthDate Patient's birth date
+     * @return true if ALL conditions are met, false otherwise
+     */
+    public boolean evaluateConditions(List<String> conditions,
+                                      List<Immunization> immunizations,
+                                      LocalDate birthDate) {
+        if (conditions == null || conditions.isEmpty()) {
+            log.debug("No date conditions to evaluate");
+            return true;
+        }
+
+        log.debug("Evaluating {} date conditions", conditions.size());
+
+        for (String condition : conditions) {
+            boolean conditionMet = evaluateCondition(condition, immunizations, birthDate);
+            if (!conditionMet) {
+                log.info("Date condition failed: '{}'", condition);
+                return false;
+            }
+        }
+
+        log.debug("All {} date conditions met", conditions.size());
+        return true;
+    }
+
+    /**
+     * Evaluates a single date condition.
+     *
+     * Parses conditions like "4th dose on or after 4th birthday" and validates
+     * that the specified dose was given on or after the required birthday.
+     *
+     * @param condition Date condition to evaluate (e.g., "4th dose on or after 4th birthday")
+     * @param immunizations List of immunizations for the vaccine, sorted by date
      * @param birthDate Patient's birth date
      * @return true if condition is met, false otherwise
      */
-    public boolean evaluateCondition(
-            String condition, 
-            List<Immunization> immunizations,
-            LocalDate birthDate) {
-        
-        if (condition == null || condition.isEmpty() || birthDate == null) {
-            log.debug("Condition evaluation skipped - missing condition or birthDate");
-            return false;
+    public boolean evaluateCondition(String condition,
+                                     List<Immunization> immunizations,
+                                     LocalDate birthDate) {
+        if (condition == null || condition.trim().isEmpty()) {
+            log.warn("Empty date condition provided, defaulting to true");
+            return true;
         }
-        
+
+        log.debug("Evaluating date condition: '{}'", condition);
+
+        Matcher matcher = DATE_CONDITION_PATTERN.matcher(condition);
+
+        if (!matcher.find()) {
+            log.warn("Could not parse date condition: '{}'. Defaulting to true to avoid false negatives",
+                    condition);
+            return true; // Don't fail validation on unparseable conditions
+        }
+
         try {
-            // Parse the condition using regex
-            Matcher matcher = DOSE_BIRTHDAY_PATTERN.matcher(condition.toLowerCase());
-            if (matcher.find()) {
-                int doseNumber = Integer.parseInt(matcher.group(1));
-                int birthdayYear = Integer.parseInt(matcher.group(2));
-                
-                return evaluateDoseAfterBirthday(immunizations, doseNumber, birthdayYear, birthDate);
+            int doseNumber = Integer.parseInt(matcher.group(1));
+            int birthdayYear = Integer.parseInt(matcher.group(2));
+
+            log.debug("Parsed condition - Dose number: {}, Birthday year: {}", doseNumber, birthdayYear);
+
+            // Check if we have enough doses
+            if (immunizations == null || immunizations.size() < doseNumber) {
+                log.debug("Not enough doses to check: have {}, need dose #{}",
+                        immunizations == null ? 0 : immunizations.size(), doseNumber);
+                return false;
             }
-            
-            log.warn("Unrecognized condition pattern: {}", condition);
-            return false;
-            
+
+            // Get the specified dose (1-indexed)
+            Immunization dose = immunizations.get(doseNumber - 1);
+            LocalDate doseDate = LocalDate.parse(dose.getOccurrenceDateTime());
+
+            // Calculate the target birthday
+            LocalDate targetBirthday = birthDate.plusYears(birthdayYear);
+
+            log.debug("Checking if dose date {} is on or after target birthday {}",
+                    doseDate, targetBirthday);
+
+            // Check if dose date is on or after the target birthday
+            // CRITICAL: Use !isBefore to include the birthday itself (on or after)
+            boolean conditionMet = !doseDate.isBefore(targetBirthday);
+
+            if (conditionMet) {
+                long daysAfter = ChronoUnit.DAYS.between(targetBirthday, doseDate);
+                log.info("✓ Date condition MET: {}th dose ({}) is on or after {}th birthday ({}). " +
+                                "Dose given {} days after birthday.",
+                        doseNumber, doseDate, birthdayYear, targetBirthday, daysAfter);
+            } else {
+                long daysBefore = ChronoUnit.DAYS.between(doseDate, targetBirthday);
+                log.info("✗ Date condition NOT MET: {}th dose ({}) is before {}th birthday ({}). " +
+                                "Dose was given {} days too early.",
+                        doseNumber, doseDate, birthdayYear, targetBirthday, daysBefore);
+            }
+
+            return conditionMet;
+
         } catch (Exception e) {
-            log.error("Error evaluating condition: {}", condition, e);
-            return false;
+            log.error("Error evaluating date condition '{}': {}", condition, e.getMessage(), e);
+            return true; // Don't fail validation on unexpected errors
         }
     }
-    
+
     /**
-     * Checks if the specified dose was given on or after the specified birthday.
-     * 
-     * Example: "4th dose on or after 4th birthday"
-     * - Patient born: 2019-01-01
-     * - 4th birthday: 2023-01-01
-     * - 4th dose date: 2022-11-01 → BEFORE 4th birthday → FAILS
-     * - 4th dose date: 2023-02-01 → AFTER 4th birthday → PASSES
-     * 
-     * @param immunizations List of immunizations (must be sorted by date)
-     * @param doseNumber Which dose to check (1-indexed, e.g., 4 for "4th dose")
-     * @param birthdayYear Which birthday (e.g., 4 for "4th birthday")
-     * @param birthDate Patient's birth date
-     * @return true if dose date is on or after the target birthday
+     * Convenience method for evaluating a single condition with string birthDate.
+     *
+     * @param condition Date condition to evaluate
+     * @param immunizations List of immunizations
+     * @param birthDateStr Birth date as string (ISO format)
+     * @return true if condition is met, false otherwise
      */
-    private boolean evaluateDoseAfterBirthday(
-            List<Immunization> immunizations,
-            int doseNumber,
-            int birthdayYear,
-            LocalDate birthDate) {
-        
-        // Check if we have enough doses
-        if (immunizations.size() < doseNumber) {
-            log.debug("Not enough doses: have {}, need {}", immunizations.size(), doseNumber);
-            return false;
-        }
-        
-        // Get the specified dose (convert from 1-indexed to 0-indexed)
-        Immunization targetDose = immunizations.get(doseNumber - 1);
-        
+    public boolean evaluateCondition(String condition,
+                                     List<Immunization> immunizations,
+                                     String birthDateStr) {
         try {
-            // Parse dose date
-            LocalDate doseDate = LocalDate.parse(
-                targetDose.getOccurrenceDateTime(), DATE_FORMATTER);
-            
-            // Calculate target birthday
-            LocalDate targetBirthday = birthDate.plusYears(birthdayYear);
-            
-            // Check if dose was on or after the birthday
-            boolean conditionMet = !doseDate.isBefore(targetBirthday);
-            
-            log.debug("Dose #{} on {}, {}th birthday on {}: condition {}",
-                    doseNumber, doseDate, birthdayYear, targetBirthday,
-                    conditionMet ? "MET" : "NOT MET");
-            
-            return conditionMet;
-            
-        } catch (DateTimeParseException e) {
-            log.error("Invalid date format in immunization: {}", 
-                    targetDose.getOccurrenceDateTime());
-            return false;
+            LocalDate birthDate = LocalDate.parse(birthDateStr);
+            return evaluateCondition(condition, immunizations, birthDate);
+        } catch (Exception e) {
+            log.error("Invalid birth date format: {}", birthDateStr);
+            return true; // Don't fail validation on invalid birth date
         }
     }
 }

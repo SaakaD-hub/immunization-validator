@@ -23,7 +23,7 @@ public class ValidationResponse {
     /**
      * Patient identifier
      */
-    @JsonProperty("id")
+    @JsonProperty("patientId")
     private String patientId;
     
     /**
@@ -37,5 +37,7 @@ public class ValidationResponse {
      */
     @JsonProperty("unmetRequirements")
     private List<UnmetRequirement> unmetRequirements;
+
+    private List<ValidationExplanation> explanations;
 }
 

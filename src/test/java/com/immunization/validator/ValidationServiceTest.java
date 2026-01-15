@@ -2,6 +2,7 @@ package com.immunization.validator;
 
 import com.immunization.validator.model.*;
 import com.immunization.validator.service.DateConditionEvaluator;
+import com.immunization.validator.service.IntervalConditionEvaluator;
 import com.immunization.validator.service.RequirementsService;
 import com.immunization.validator.service.ValidationService;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,6 +18,7 @@ import static org.mockito.Mockito.*;
 
 /**
  * Comprehensive test suite for ValidationService
+ * Tests Massachusetts (MA) immunization requirements
  *
  * @author Saakad
  * @since 2026-01-01
@@ -27,17 +29,19 @@ class ValidationServiceTest {
     private RequirementsService requirementsService;
 
     private ValidationService validationService;
-    private DateConditionEvaluator dateConditionEvaluator; // ✅ NEW: Real instance
+    private DateConditionEvaluator dateConditionEvaluator;
+    private IntervalConditionEvaluator intervalConditionEvaluator;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
 
-        // ✅ FIX: Create real DateConditionEvaluator instance
+        // Create real instances of evaluators
         dateConditionEvaluator = new DateConditionEvaluator();
+        intervalConditionEvaluator = new IntervalConditionEvaluator();
 
-        // ✅ FIX: Pass BOTH dependencies to ValidationService
-        validationService = new ValidationService(requirementsService, dateConditionEvaluator);
+        // Pass all dependencies to ValidationService
+        validationService = new ValidationService(requirementsService, dateConditionEvaluator, intervalConditionEvaluator);
     }
 
     // ========================================
@@ -61,7 +65,7 @@ class ValidationServiceTest {
         when(requirementsService.getRequirements(anyString(), any(Integer.class)))
                 .thenReturn(requirements);
 
-        ValidationResponse response = validationService.validate(patient, "CA", 5, null, false);
+        ValidationResponse response = validationService.validate(patient, "MA", 5, null, false);
 
         assertTrue(response.getValid(), "Patient with 5 DTaP doses should be valid");
         assertEquals("patient-001", response.getPatientId());
@@ -81,7 +85,7 @@ class ValidationServiceTest {
         when(requirementsService.getRequirements(anyString(), any(Integer.class)))
                 .thenReturn(requirements);
 
-        ValidationResponse response = validationService.validate(patient, "CA", 5, null, true);
+        ValidationResponse response = validationService.validate(patient, "MA", 5, null, true);
 
         assertFalse(response.getValid(), "Patient with only 2 DTaP doses should be invalid");
         assertNotNull(response.getUnmetRequirements());
@@ -124,7 +128,7 @@ class ValidationServiceTest {
         when(requirementsService.getRequirements(anyString(), any(Integer.class)))
                 .thenReturn(requirements);
 
-        ValidationResponse response = validationService.validate(patient, "CA", 5, null, true);
+        ValidationResponse response = validationService.validate(patient, "MA", 5, null, true);
 
         // ✅ AFTER FIX: This should correctly fail
         assertFalse(response.getValid(),
@@ -158,7 +162,7 @@ class ValidationServiceTest {
         when(requirementsService.getRequirements(anyString(), any(Integer.class)))
                 .thenReturn(requirements);
 
-        ValidationResponse response = validationService.validate(patient, "CA", 5, null, false);
+        ValidationResponse response = validationService.validate(patient, "MA", 5, null, false);
 
         // ✅ AFTER FIX: Should pass with 4 doses when 4th dose on 4th birthday
         assertTrue(response.getValid(),
@@ -192,7 +196,7 @@ class ValidationServiceTest {
         when(requirementsService.getRequirements(anyString(), any(Integer.class)))
                 .thenReturn(requirements);
 
-        ValidationResponse response = validationService.validate(patient, "CA", 5, null, false);
+        ValidationResponse response = validationService.validate(patient, "MA", 5, null, false);
 
         // ✅ AFTER FIX: Should pass with 4 doses when 4th dose after 4th birthday
         assertTrue(response.getValid(),
@@ -203,17 +207,15 @@ class ValidationServiceTest {
     // MEDICAL EXEMPTION TESTS
     // ========================================
 
-
-
     @Test
     @DisplayName("Vaccine exceptions - medical contraindication satisfies requirement")
     void testVaccineException_MedicalContraindication_SatisfiesRequirement() {
-        // ✅ FIX: Create patient WITH exceptions in builder
+        // Create patient WITH exceptions in builder
         Patient patient = Patient.builder()
                 .id("patient-011")
                 .birthDate("2019-01-01")
                 .immunizations(List.of())  // No doses
-                .exceptions(List.of(       // ✅ Add exceptions in builder
+                .exceptions(List.of(
                         VaccineException.builder()
                                 .vaccineCode("DTaP")
                                 .exceptionType("MEDICAL_CONTRAINDICATION")
@@ -233,7 +235,7 @@ class ValidationServiceTest {
         when(requirementsService.getRequirements(anyString(), any(Integer.class)))
                 .thenReturn(requirements);
 
-        ValidationResponse response = validationService.validate(patient, "CA", 5, null, false);
+        ValidationResponse response = validationService.validate(patient, "MA", 5, null, false);
 
         assertTrue(response.getValid(),
                 "Medical exemption should satisfy requirement even without doses");
@@ -254,7 +256,7 @@ class ValidationServiceTest {
         when(requirementsService.getRequirements(anyString(), any(Integer.class)))
                 .thenReturn(requirements);
 
-        ValidationResponse response = validationService.validate(patient, "CA", 5, null, true);
+        ValidationResponse response = validationService.validate(patient, "MA", 5, null, true);
 
         assertFalse(response.getValid());
         assertEquals(1, response.getUnmetRequirements().size());
@@ -272,7 +274,7 @@ class ValidationServiceTest {
         when(requirementsService.getRequirements(anyString(), any(Integer.class)))
                 .thenReturn(requirements);
 
-        ValidationResponse response = validationService.validate(patient, "CA", 5, null, true);
+        ValidationResponse response = validationService.validate(patient, "MA", 5, null, true);
 
         assertFalse(response.getValid());
         assertNotNull(response.getUnmetRequirements());
@@ -292,7 +294,7 @@ class ValidationServiceTest {
                 .thenReturn(requirements);
 
         assertDoesNotThrow(() -> {
-            ValidationResponse response = validationService.validate(patient, "CA", null, null, false);
+            ValidationResponse response = validationService.validate(patient, "MA", null, null, false);
             assertNotNull(response);
         });
     }
@@ -328,7 +330,7 @@ class ValidationServiceTest {
         when(requirementsService.getRequirements(anyString(), any(Integer.class)))
                 .thenReturn(requirements);
 
-        ValidationResponse response = validationService.validate(patient, "CA", 5, null, true);
+        ValidationResponse response = validationService.validate(patient, "MA", 5, null, true);
 
         assertFalse(response.getValid());
         assertEquals(2, response.getUnmetRequirements().size());
@@ -352,7 +354,7 @@ class ValidationServiceTest {
         when(requirementsService.getRequirements(anyString(), any(Integer.class)))
                 .thenReturn(requirements);
 
-        ValidationResponse response = validationService.validate(patient, "CA", 5, null, false);
+        ValidationResponse response = validationService.validate(patient, "MA", 5, null, false);
 
         assertTrue(response.getValid(),
                 "BUG DOCUMENTED: System currently accepts 5 doses on same day (future enhancement needed)");
