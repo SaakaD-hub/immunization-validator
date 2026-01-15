@@ -10,6 +10,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -188,17 +191,62 @@ public class ValidationController {
      * @param request HTTP request
      * @return Error response
      */
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ValidationResponse> handleException(Exception ex, HttpServletRequest request) {
+//    @ExceptionHandler(Exception.class)
+//    public ResponseEntity<ValidationResponse> handleException(Exception ex, HttpServletRequest request) {
+//        String clientIp = getClientIp(request);
+//        log.error("Error processing request - Source: {}, Error: {}, Timestamp: {}",
+//                clientIp, ex.getMessage(), System.currentTimeMillis(), ex);
+//
+//        // Return error response without patient information
+//        ValidationResponse errorResponse = ValidationResponse.builder()
+//                .valid(false)
+//                .build();
+//
+//        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+//    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ValidationResponse> handleMissingParameter(
+            MissingServletRequestParameterException ex, HttpServletRequest request) {
         String clientIp = getClientIp(request);
-        log.error("Error processing request - Source: {}, Error: {}, Timestamp: {}",
-                clientIp, ex.getMessage(), System.currentTimeMillis(), ex);
-        
-        // Return error response without patient information
+        log.warn("Missing required parameter - Source: {}, Parameter: {}, Timestamp: {}",
+                clientIp, ex.getParameterName(), System.currentTimeMillis());
+
         ValidationResponse errorResponse = ValidationResponse.builder()
                 .valid(false)
                 .build();
-        
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
+    @ExceptionHandler({
+            HttpMessageNotReadableException.class,
+            MethodArgumentNotValidException.class
+    })
+    public ResponseEntity<ValidationResponse> handleBadRequest(
+            Exception ex, HttpServletRequest request) {
+        String clientIp = getClientIp(request);
+        log.warn("Invalid request - Source: {}, Error: {}, Timestamp: {}",
+                clientIp, ex.getMessage(), System.currentTimeMillis());
+
+        ValidationResponse errorResponse = ValidationResponse.builder()
+                .valid(false)
+                .build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ValidationResponse> handleException(
+            Exception ex, HttpServletRequest request) {
+        String clientIp = getClientIp(request);
+        log.error("Error processing request - Source: {}, Error: {}, Timestamp: {}",
+                clientIp, ex.getMessage(), System.currentTimeMillis(), ex);
+
+        ValidationResponse errorResponse = ValidationResponse.builder()
+                .valid(false)
+                .build();
+
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
 }

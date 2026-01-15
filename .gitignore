@@ -1,0 +1,119 @@
+# =====================================================
+# Java & Maven
+# =====================================================
+
+# Compiled class files
+*.class
+
+# Log files
+*.log
+
+# Package Files
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# =====================================================
+# IDE - IntelliJ IDEA
+# =====================================================
+
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+# =====================================================
+# IDE - Eclipse
+# =====================================================
+
+.classpath
+.project
+.settings/
+bin/
+
+# =====================================================
+# IDE - VS Code
+# =====================================================
+
+.vscode/
+*.code-workspace
+
+# =====================================================
+# Operating System
+# =====================================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+
+# =====================================================
+# Application Specific
+# =====================================================
+
+# Spring Boot
+spring-boot-devtools.properties
+
+# Logs
+logs/
+*.log
+*.log.*
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~.nib
+
+# =====================================================
+# Build & Test Reports
+# =====================================================
+
+# Surefire test reports
+**/surefire-reports/
+*.dumpstream
+
+# Code coverage
+*.exec
+*.jacoco
+
+# =====================================================
+# Security & Credentials
+# =====================================================
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Credentials
+secrets/
+*.key
+*.pem
+*.p12
