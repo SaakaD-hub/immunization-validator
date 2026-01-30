@@ -240,3 +240,19 @@ mvn test
 
 This project is provided as-is for demonstration purposes.
 
+## Frontend UI (React)
+
+A lightweight React UI is available for demoing and QA-testing the
+Massachusetts immunization validator.
+
+**Repository:**  
+https://github.com/SaakaD-hub/ma-validator-react-app
+
+### Local setup
+
+```bash
+git clone https://github.com/SaakaD-hub/ma-validator-react-app
+cd ma-validator-react-app
+npm install
+cp .env.example .env
+npm start
