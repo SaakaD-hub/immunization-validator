@@ -187,10 +187,10 @@ public class ValidationService {
 
                         // Evaluate date-based condition if present
                         boolean dateConditionMet = true;
-                        if (altReq.getCondition() != null && !altReq.getCondition().isEmpty()) {
+                        if (altReq.getDateConditions() != null && !altReq.getDateConditions().isEmpty()) {
                             if (birthDate != null) {
-                                dateConditionMet = dateConditionEvaluator.evaluateCondition(
-                                        altReq.getCondition(),
+                                dateConditionMet = dateConditionEvaluator.evaluateConditions(
+                                        altReq.getDateConditions(),
                                         vaccineImmunizations,
                                         birthDate
                                 );
@@ -227,9 +227,21 @@ public class ValidationService {
                     }
                 }
             }
-
+            boolean hasAlternate = requirement.getAlternateRequirements() != null
+                    && !requirement.getAlternateRequirements().isEmpty();
             if (alternateRequirementMet) {
-                continue; // Requirement satisfied by alternate
+                continue; //  valid via alternate
+            }
+
+            // ⬇️ FALL BACK TO PRIMARY if alternate exists but failed
+            if (hasAlternate && !alternateRequirementMet) {
+                unmetRequirements.add(UnmetRequirement.builder()
+                        .description(requirement.getDescription())
+                        .vaccineCode(vaccineCode)
+                        .requiredDoses(requiredDoses)
+                        .foundDoses(foundDoses.intValue())
+                        .build());
+                continue;
             }
 
             // ⬇️ NEW: Check primary requirement with date and interval conditions
