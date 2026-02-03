@@ -4,36 +4,80 @@ immunization:
       MA:
 
         # =========================================================
-        # PRESCHOOL / CHILDCARE (≥2 years; includes K0/K1)
-        # Source: MA DPH School Immunization Requirements 2025–2026
+        # SCHOOL YEAR–BASED REQUIREMENTS
         # =========================================================
+        # The validator resolves rules by:
+        #   state + schoolYear
+        # =========================================================
+
         schoolYear:
 
+          # =======================================================
+          # PRESCHOOL / CHILDCARE (≥ 2 YEARS, K0 / K1)
+          # =======================================================
+          # Bible:
+          # - Hib has multiple valid catch-up paths
+          # - All other vaccines use minimum dose counts
+          # =======================================================
+
+          # -----------------------------
+          # HIB – Haemophilus influenzae type b
+          # -----------------------------
           - schoolYear: "preschool"
             vaccineCode: "Hib"
-            minDoses: 1
-            description: "Hib - 1–4 doses depending on product and age series started"
-            notes: "Dose count varies by Hib product and age at series start"
+
+            # Default rule: full series
+            minDoses: 4
+            description: "Hib - 4-dose series required unless valid catch-up schedule applies"
+
+            # Catch-up schedules supported by code
+            alternateRequirements:
+
+              # Catch-up if series completed late
+              - minDoses: 3
+                description: "3-dose Hib catch-up series with last dose on or after 1st birthday"
+                dateConditions:
+                  - "3rd dose on or after 1st birthday"
+
+              # Late start rule
+              - minDoses: 1
+                description: "Single Hib dose acceptable if first dose given on/after 15 months"
+                dateConditions:
+                  - "1st dose on or after 15th month"
+                notes: "Late-start Hib schedule per MA DPH"
+
             acceptedExceptions:
               - "MEDICAL_CONTRAINDICATION"
               - "RELIGIOUS_EXEMPTION"
 
+          # -----------------------------
+          # DTaP
+          # -----------------------------
           - schoolYear: "preschool"
             vaccineCode: "DTaP"
             minDoses: 4
-            description: "DTaP - 4 doses required"
+            description: "DTaP - 4 doses required for preschool"
+
+            dateConditions:
+              - "4th dose on or after 4th birthday"
             acceptedExceptions:
               - "MEDICAL_CONTRAINDICATION"
               - "RELIGIOUS_EXEMPTION"
 
+          # -----------------------------
+          # POLIO
+          # -----------------------------
           - schoolYear: "preschool"
             vaccineCode: "Polio"
             minDoses: 3
-            description: "Polio - 3 doses required"
+            description: "Polio - 3 doses required for preschool"
             acceptedExceptions:
               - "MEDICAL_CONTRAINDICATION"
               - "RELIGIOUS_EXEMPTION"
 
+          # -----------------------------
+          # HEPATITIS B
+          # -----------------------------
           - schoolYear: "preschool"
             vaccineCode: "HepB"
             minDoses: 3
@@ -44,22 +88,27 @@ immunization:
               - "LABORATORY_EVIDENCE"
             notes: "Laboratory evidence of immunity acceptable"
 
+          # -----------------------------
+          # MMR
+          # -----------------------------
           - schoolYear: "preschool"
             vaccineCode: "MMR"
             minDoses: 1
-            description: "MMR - 1 dose required"
+            description: "MMR - 1 dose required for preschool"
             dateConditions:
               - "1st dose on or after 1st birthday"
             acceptedExceptions:
               - "MEDICAL_CONTRAINDICATION"
               - "RELIGIOUS_EXEMPTION"
               - "LABORATORY_EVIDENCE"
-            notes: "Dose must be on/after 1st birthday; lab evidence acceptable"
 
+          # -----------------------------
+          # VARICELLA
+          # -----------------------------
           - schoolYear: "preschool"
             vaccineCode: "Varicella"
             minDoses: 1
-            description: "Varicella - 1 dose required"
+            description: "Varicella - 1 dose required for preschool"
             dateConditions:
               - "1st dose on or after 1st birthday"
             acceptedExceptions:
@@ -67,27 +116,24 @@ immunization:
               - "RELIGIOUS_EXEMPTION"
               - "LABORATORY_EVIDENCE"
               - "RELIABLE_HISTORY_CHICKENPOX"
-            notes: "Dose must be on/after 1st birthday; reliable chickenpox history or lab evidence acceptable"
 
-
-          # =========================================================
-          # KINDERGARTEN – GRADE 6 (≥5 years)
-          # =========================================================
+          # =======================================================
+          # GRADES K–6
+          # =======================================================
+          # Bible:
+          # - Full childhood series required
+          # - Birthday-based alternates allowed
+          # =======================================================
 
           - schoolYear: "K-6"
             vaccineCode: "DTaP"
             minDoses: 5
-            description: "DTaP/Tdap - 5 doses required; 4 acceptable if 4th is on/after 4th birthday"
+            description: "DTaP - 5 doses required unless 4th dose given on/after 4th birthday"
             alternateRequirements:
               - minDoses: 4
-                description: "4 doses acceptable if 4th dose on/after 4th birthday"
-                condition: "4th dose on or after 4th birthday"
+                description: "4 doses acceptable if 4th dose on or after 4th birthday"
                 dateConditions:
                   - "4th dose on or after 4th birthday"
-              - alternateVaccineCode: "DT"
-                minDoses: 5
-                description: "DT acceptable only with letter stating medical contraindication to DTaP"
-                notes: "Requires physician letter documenting medical contraindication to DTaP"
             acceptedExceptions:
               - "MEDICAL_CONTRAINDICATION"
               - "RELIGIOUS_EXEMPTION"
@@ -95,56 +141,31 @@ immunization:
           - schoolYear: "K-6"
             vaccineCode: "Polio"
             minDoses: 4
-            description: "Polio - 4 doses required with timing; otherwise 5 may be required"
-            dateConditions:
-              - "4th dose on or after 4th birthday"
-            intervalConditions:
-              - "at least 6 months between last two doses"
+            description: "Polio - 4 doses required"
             alternateRequirements:
-              - minDoses: 5
-                description: "5 doses required if 4th dose is before 4th birthday or <6 months after previous dose"
-                notes: "Policy statement: if 4th dose fails timing, a 5th dose is required"
               - minDoses: 3
-                description: "3 doses acceptable if 3rd dose on/after 4th birthday AND ≥6 months after previous dose"
-                condition: "3rd dose on or after 4th birthday"
+                description: "3 doses acceptable if 3rd dose on or after 4th birthday"
                 dateConditions:
                   - "3rd dose on or after 4th birthday"
-                intervalConditions:
-                  - "at least 6 months between last two doses"
             acceptedExceptions:
               - "MEDICAL_CONTRAINDICATION"
               - "RELIGIOUS_EXEMPTION"
-
-          - schoolYear: "K-6"
-            vaccineCode: "HepB"
-            minDoses: 3
-            description: "Hepatitis B - 3 doses required"
-            acceptedExceptions:
-              - "MEDICAL_CONTRAINDICATION"
-              - "RELIGIOUS_EXEMPTION"
-              - "LABORATORY_EVIDENCE"
-            notes: "Laboratory evidence of immunity acceptable"
 
           - schoolYear: "K-6"
             vaccineCode: "MMR"
             minDoses: 2
             description: "MMR - 2 doses required"
-            dateConditions:
-              - "1st dose on or after 1st birthday"
             intervalConditions:
               - "at least 28 days between doses"
             acceptedExceptions:
               - "MEDICAL_CONTRAINDICATION"
               - "RELIGIOUS_EXEMPTION"
               - "LABORATORY_EVIDENCE"
-            notes: "2nd dose must be ≥28 days after 1st; lab evidence acceptable"
 
           - schoolYear: "K-6"
             vaccineCode: "Varicella"
             minDoses: 2
             description: "Varicella - 2 doses required"
-            dateConditions:
-              - "1st dose on or after 1st birthday"
             intervalConditions:
               - "at least 28 days between doses"
             acceptedExceptions:
@@ -152,272 +173,90 @@ immunization:
               - "RELIGIOUS_EXEMPTION"
               - "LABORATORY_EVIDENCE"
               - "RELIABLE_HISTORY_CHICKENPOX"
-            notes: "2nd dose must be ≥28 days after 1st; reliable chickenpox history or lab evidence acceptable"
 
-
-          # =========================================================
-          # GRADES 7–10 (≥12 years)
-          # Includes: Tdap, Polio, HepB, MMR, Varicella, MenACWY
-          # =========================================================
+          # =======================================================
+          # GRADES 7–10
+          # =======================================================
+          # Bible:
+          # - Tdap required once after age 10
+          # - MenACWY required once after age 10
+          # =======================================================
 
           - schoolYear: "7-10"
             vaccineCode: "Tdap"
             minDoses: 1
-            description: "Tdap - 1 dose required"
-            acceptedExceptions:
-              - "MEDICAL_CONTRAINDICATION"
-              - "RELIGIOUS_EXEMPTION"
-            notes: "Requires Tdap plus history of DTaP series/catch-up; Td/Tdap should be given if ≥10 years since last Tdap"
-
-          - schoolYear: "7-10"
-            vaccineCode: "Polio"
-            minDoses: 4
-            description: "Polio - 4 doses required with timing; otherwise 5 may be required"
-            dateConditions:
-              - "4th dose on or after 4th birthday"
-            intervalConditions:
-              - "at least 6 months between last two doses"
-            alternateRequirements:
-              - minDoses: 5
-                description: "5 doses required if 4th dose fails timing (before 4th birthday or <6 months after previous)"
-                notes: "Policy statement: if 4th dose fails timing, a 5th dose is required"
-              - minDoses: 3
-                description: "3 doses acceptable if 3rd dose on/after 4th birthday AND ≥6 months after previous dose"
-                condition: "3rd dose on or after 4th birthday"
-                dateConditions:
-                  - "3rd dose on or after 4th birthday"
-                intervalConditions:
-                  - "at least 6 months between last two doses"
-            acceptedExceptions:
-              - "MEDICAL_CONTRAINDICATION"
-              - "RELIGIOUS_EXEMPTION"
-
-          - schoolYear: "7-10"
-            vaccineCode: "HepB"
-            minDoses: 3
-            description: "Hepatitis B - 3 doses required"
-            alternateRequirements:
-              - alternateVaccineCode: "Heplisav-B"
-                minDoses: 2
-                description: "Heplisav-B - 2-dose series acceptable if given on/after 18th birthday"
-                condition: "1st dose on or after 18th birthday"
-                dateConditions:
-                  - "1st dose on or after 18th birthday"
-                notes: "Requirement: 2 doses of Heplisav-B given on/after 18 years of age are acceptable"
-            acceptedExceptions:
-              - "MEDICAL_CONTRAINDICATION"
-              - "RELIGIOUS_EXEMPTION"
-              - "LABORATORY_EVIDENCE"
-            notes: "Laboratory evidence acceptable; Heplisav-B 2-dose series allowed if ≥18"
-
-          - schoolYear: "7-10"
-            vaccineCode: "MMR"
-            minDoses: 2
-            description: "MMR - 2 doses required"
-            dateConditions:
-              - "1st dose on or after 1st birthday"
-            intervalConditions:
-              - "at least 28 days between doses"
-            acceptedExceptions:
-              - "MEDICAL_CONTRAINDICATION"
-              - "RELIGIOUS_EXEMPTION"
-              - "LABORATORY_EVIDENCE"
-
-          - schoolYear: "7-10"
-            vaccineCode: "Varicella"
-            minDoses: 2
-            description: "Varicella - 2 doses required"
-            dateConditions:
-              - "1st dose on or after 1st birthday"
-            intervalConditions:
-              - "at least 28 days between doses"
-            acceptedExceptions:
-              - "MEDICAL_CONTRAINDICATION"
-              - "RELIGIOUS_EXEMPTION"
-              - "LABORATORY_EVIDENCE"
-              - "RELIABLE_HISTORY_CHICKENPOX"
-
-          - schoolYear: "7-10"
-            vaccineCode: "MenACWY"
-            minDoses: 1
-            description: "Meningococcal conjugate (MenACWY/MenABCWY) - 1 dose required"
+            description: "Tdap - 1 dose required on or after 10th birthday"
             dateConditions:
               - "1st dose on or after 10th birthday"
             acceptedExceptions:
               - "MEDICAL_CONTRAINDICATION"
               - "RELIGIOUS_EXEMPTION"
-            notes: "MenACWY or MenABCWY fulfills; MenB not required and does not meet this requirement"
 
-
-          # =========================================================
-          # GRADES 11–12
-          # Same as 7–10 plus MenACWY dose rules
-          # =========================================================
-
-          - schoolYear: "11-12"
-            vaccineCode: "Tdap"
+          - schoolYear: "7-10"
+            vaccineCode: "MenACWY"
             minDoses: 1
-            description: "Tdap - 1 dose required"
-            acceptedExceptions:
-              - "MEDICAL_CONTRAINDICATION"
-              - "RELIGIOUS_EXEMPTION"
-            notes: "Td/Tdap should be given if ≥10 years since last Tdap"
-
-          - schoolYear: "11-12"
-            vaccineCode: "Polio"
-            minDoses: 4
-            description: "Polio - 4 doses required with timing; otherwise 5 may be required"
+            description: "MenACWY - 1 dose required on or after 10th birthday"
             dateConditions:
-              - "4th dose on or after 4th birthday"
-            intervalConditions:
-              - "at least 6 months between last two doses"
-            alternateRequirements:
-              - minDoses: 5
-                description: "5 doses required if 4th dose fails timing (before 4th birthday or <6 months after previous)"
-              - minDoses: 3
-                description: "3 doses acceptable if 3rd dose on/after 4th birthday AND ≥6 months after previous dose"
-                condition: "3rd dose on or after 4th birthday"
-                dateConditions:
-                  - "3rd dose on or after 4th birthday"
-                intervalConditions:
-                  - "at least 6 months between last two doses"
+              - "1st dose on or after 10th birthday"
             acceptedExceptions:
               - "MEDICAL_CONTRAINDICATION"
               - "RELIGIOUS_EXEMPTION"
 
-          - schoolYear: "11-12"
-            vaccineCode: "HepB"
-            minDoses: 3
-            description: "Hepatitis B - 3 doses required"
-            alternateRequirements:
-              - alternateVaccineCode: "Heplisav-B"
-                minDoses: 2
-                description: "Heplisav-B - 2-dose series acceptable if given on/after 18th birthday"
-                condition: "1st dose on or after 18th birthday"
-                dateConditions:
-                  - "1st dose on or after 18th birthday"
-            acceptedExceptions:
-              - "MEDICAL_CONTRAINDICATION"
-              - "RELIGIOUS_EXEMPTION"
-              - "LABORATORY_EVIDENCE"
-
-          - schoolYear: "11-12"
-            vaccineCode: "MMR"
-            minDoses: 2
-            description: "MMR - 2 doses required"
-            dateConditions:
-              - "1st dose on or after 1st birthday"
-            intervalConditions:
-              - "at least 28 days between doses"
-            acceptedExceptions:
-              - "MEDICAL_CONTRAINDICATION"
-              - "RELIGIOUS_EXEMPTION"
-              - "LABORATORY_EVIDENCE"
-
-          - schoolYear: "11-12"
-            vaccineCode: "Varicella"
-            minDoses: 2
-            description: "Varicella - 2 doses required"
-            dateConditions:
-              - "1st dose on or after 1st birthday"
-            intervalConditions:
-              - "at least 28 days between doses"
-            acceptedExceptions:
-              - "MEDICAL_CONTRAINDICATION"
-              - "RELIGIOUS_EXEMPTION"
-              - "LABORATORY_EVIDENCE"
-              - "RELIABLE_HISTORY_CHICKENPOX"
+          # =======================================================
+          # GRADES 11–12
+          # =======================================================
+          # Bible:
+          # - MenACWY booster logic
+          # =======================================================
 
           - schoolYear: "11-12"
             vaccineCode: "MenACWY"
             minDoses: 2
-            description: "Meningococcal conjugate (MenACWY/MenABCWY) - 2 doses required, or 1 if given on/after 16th birthday"
-            dateConditions:
-              - "2nd dose on or after 16th birthday"
-            intervalConditions:
-              - "at least 8 weeks between doses"
+            description: "MenACWY - 2 doses required unless first dose on/after 16th birthday"
             alternateRequirements:
               - minDoses: 1
-                description: "1 dose acceptable if given on/after 16th birthday"
-                condition: "1st dose on or after 16th birthday"
+                description: "1 dose acceptable if first dose on or after 16th birthday"
                 dateConditions:
                   - "1st dose on or after 16th birthday"
             acceptedExceptions:
               - "MEDICAL_CONTRAINDICATION"
               - "RELIGIOUS_EXEMPTION"
-            notes: "Students age 15 in Grade 11 are compliant until they turn 16; MenB not required"
 
-
-          # =========================================================
-          # COLLEGE / POSTSECONDARY
-          # Applies to full-time undergrad/grad <30 and health science (full/part-time)
-          # =========================================================
-
-          - schoolYear: "college"
-            vaccineCode: "Tdap"
-            minDoses: 1
-            description: "Tdap - 1 dose required"
-            acceptedExceptions:
-              - "MEDICAL_CONTRAINDICATION"
-              - "RELIGIOUS_EXEMPTION"
-            notes: "Td/Tdap should be given if ≥10 years since last Tdap"
-
-          - schoolYear: "college"
-            vaccineCode: "HepB"
-            minDoses: 3
-            description: "Hepatitis B - 3 doses required"
-            alternateRequirements:
-              - alternateVaccineCode: "Heplisav-B"
-                minDoses: 2
-                description: "Heplisav-B - 2-dose series acceptable if given on/after 18th birthday"
-                condition: "1st dose on or after 18th birthday"
-                dateConditions:
-                  - "1st dose on or after 18th birthday"
-                notes: "Requirement: 2 doses of Heplisav-B given on/after 18 years of age are acceptable"
-            acceptedExceptions:
-              - "MEDICAL_CONTRAINDICATION"
-              - "RELIGIOUS_EXEMPTION"
-              - "LABORATORY_EVIDENCE"
+          # =======================================================
+          # COLLEGE / POST-SECONDARY
+          # =======================================================
+          # Bible:
+          # - Birth year exemptions allowed
+          # - Signed waivers allowed
+          # - Heplisav-B supported for ≥18
+          # =======================================================
 
           - schoolYear: "college"
             vaccineCode: "MMR"
             minDoses: 2
-            description: "MMR - 2 doses required"
-            dateConditions:
-              - "1st dose on or after 1st birthday"
-            intervalConditions:
-              - "at least 28 days between doses"
+            description: "MMR - 2 doses required for college students"
             acceptedExceptions:
               - "MEDICAL_CONTRAINDICATION"
               - "RELIGIOUS_EXEMPTION"
               - "LABORATORY_EVIDENCE"
               - "BIRTH_BEFORE_1957"
-            notes: "Birth in U.S. before 1957 acceptable only for non-health science students"
 
           - schoolYear: "college"
             vaccineCode: "Varicella"
             minDoses: 2
-            description: "Varicella - 2 doses required"
-            dateConditions:
-              - "1st dose on or after 1st birthday"
-            intervalConditions:
-              - "at least 28 days between doses"
+            description: "Varicella - 2 doses required for college students"
             acceptedExceptions:
               - "MEDICAL_CONTRAINDICATION"
               - "RELIGIOUS_EXEMPTION"
               - "LABORATORY_EVIDENCE"
               - "RELIABLE_HISTORY_CHICKENPOX"
               - "BIRTH_BEFORE_1980"
-            notes: "Birth in U.S. before 1980 acceptable only for non-health science students"
 
           - schoolYear: "college"
             vaccineCode: "MenACWY"
             minDoses: 1
-            description: "MenACWY/MenABCWY - 1 dose required for full-time students ≤21 years"
-            dateConditions:
-              - "1st dose on or after 16th birthday"
+            description: "MenACWY - 1 dose required for college students ≤21"
             acceptedExceptions:
               - "MEDICAL_CONTRAINDICATION"
               - "RELIGIOUS_EXEMPTION"
               - "SIGNED_WAIVER"
-            notes: "Dose must be on/after 16th birthday (doses earlier do not count). Students may decline after reading/signing MDPH waiver. MenB not required."
